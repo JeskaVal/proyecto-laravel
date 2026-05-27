@@ -36,4 +36,4 @@ class DenunciaBitacora extends Model
     {
         return $thiss->belongsTo(User::class)->withTrashed();
     }
-}s
+}
