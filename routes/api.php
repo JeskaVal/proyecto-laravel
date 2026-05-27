@@ -10,7 +10,7 @@ Route::middleware('api')->group(function () {
 
     // DENUNCIAS - Rutas protegidas (autenticación requerida)
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/denuncias', [DenunciaController::class, 'index']); // Listar denuncias (usuario autenticado)
+    Route::get('/denuncias', [DenunciaController::class, 'index']); // Listar denuncias (usuario autenticado)
     });
     
 });
