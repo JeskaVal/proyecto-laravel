@@ -1,16 +1,22 @@
 <?php
 
-use App\Http\Controllers\DenunciaController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('api')->group(function () {
-    // DENUNCIAS - Rutas públicas
-    Route::post('/denuncias', [DenunciaController::class, 'store']); // Crear denuncia (anonima o identificada)
-    Route::get('/denuncias/{folio}', [DenunciaController::class, 'show']);// Consultar denuncia por folio
+// Health check - para verificar que funciona
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
 
-    // DENUNCIAS - Rutas protegidas (autenticación requerida)
-    Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/denuncias', [DenunciaController::class, 'index']); // Listar denuncias (usuario autenticado)
-    });
-    
+// Ruta de prueba
+Route::get('/test', function () {
+    return response()->json(['message' => 'API está funcionando']);
+});
+
+// Rutas de denuncias
+Route::post('/denuncias', [\App\Http\Controllers\DenunciaController::class, 'store']);
+Route::get('/denuncias/{folio}', [\App\Http\Controllers\DenunciaController::class, 'show']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/denuncias', [\App\Http\Controllers\DenunciaController::class, 'index']);
 });
