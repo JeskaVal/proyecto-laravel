@@ -3,20 +3,23 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Health check - para verificar que funciona
-Route::get('/health', function () {
-    return response()->json(['status' => 'ok']);
-});
+Route::middleware('api')->group(function () {
+    // DENUNCIAS - Rutas públicas
+    Route::post('/denuncias', [DenunciaController::class, 'store']);
+    Route::get('/denuncias/{folio}', [DenunciaController::class, 'show']);
+    Route::get('/denuncias/{folio}/archivos', [DenunciaController::class, 'obtenerArchivos']);
+    Route::get('/denuncias/{folio}/bitacora', [DenunciaController::class, 'obtenerBitacora']);
 
-// Ruta de prueba
-Route::get('/test', function () {
-    return response()->json(['message' => 'API está funcionando']);
-});
-
-// Rutas de denuncias
-Route::post('/denuncias', [\App\Http\Controllers\DenunciaController::class, 'store']);
-Route::get('/denuncias/{folio}', [\App\Http\Controllers\DenunciaController::class, 'show']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/denuncias', [\App\Http\Controllers\DenunciaController::class, 'index']);
+    // DENUNCIAS - Rutas protegidas
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/denuncias', [DenunciaController::class, 'index']);
+        Route::post('/denuncias/{folio}/archivos', [DenunciaController::class, 'subirArchivo']);
+        Route::get('/denuncias/buscar', [DenunciaController::class, 'buscar']);
+        Route::get('/denuncias/archivos/{archivo}/descargar', [DenunciaController::class, 'descargarArchivo']);
+        
+        // Solo para admins
+        Route::middleware('can:update,App\Models\Denuncia')->group(function () {
+            Route::put('/denuncias/{folio}/estado', [DenunciaController::class, 'cambiarEstado']);
+        });
+    });
 });
