@@ -60,6 +60,13 @@ return [
             'report' => false,
         ],
 
+        'denuncias_archivos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/denuncias'),
+            'url' => env('APP_URL') . '/storage/denuncias',
+            'visibility' => 'private',
+        ],
+
     ],
 
     /*
