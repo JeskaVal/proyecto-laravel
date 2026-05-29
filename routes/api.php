@@ -20,6 +20,9 @@ Route::middleware('api')->group(function () {
         // Solo para admins
         Route::middleware('can:update,App\Models\Denuncia')->group(function () {
             Route::put('/denuncias/{folio}/estado', [DenunciaController::class, 'cambiarEstado']);
+            Route::get('/dashboard', [EstadisticasController::class, 'dashboard']);
+            Route::get('/reportes', [EstadisticasController::class, 'reporte']);
+            Route::get('/exportar-reporte', [EstadisticasController::class, 'exportarReporte']);
         });
     });
 });
