@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EstadisticasController extends Controller
 {
-    private EstadisticasSercive $estadisticasService;
+    private EstadisticasService $estadisticasService;
 
     public function __construct(EstadisticasService $estadisticasService)
     {

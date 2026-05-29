@@ -58,7 +58,7 @@ class DenunciaArchivoService
 
             //Guardar en storage
             $ruta = Storage::disk($this->diskName)->putFileAs(
-                "denuncias/{$denuncias->id}",
+                "denuncias/{$denuncia->id}",
                 $file,
                 $nombreArchivo
             );
@@ -92,7 +92,7 @@ class DenunciaArchivoService
 
     public function descargarArchivo(DenunciaArchivo $archivo)
     {
-        if (!Storage::disk($this->diskName)->dba_exists($archivo->ruta_archivo)) {
+        if (!Storage::disk($this->diskName)->Storage::exists($archivo->ruta_archivo)) {
             throw new \Exception('Archivo no encontrado');
         }
 

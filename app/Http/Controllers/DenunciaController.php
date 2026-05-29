@@ -16,7 +16,7 @@ class DenunciaController extends Controller
 
     public function __construct(
         DenunciaService $denunciaService,
-        DenunciaArchivService $archivoService
+        DenunciaArchivoService $archivoService
         ) {
         $this->denunciaService = $denunciaService;
         $this->archivoService = $archivoService;
@@ -37,7 +37,7 @@ class DenunciaController extends Controller
         );
 
         return response()->json([
-            'sucess' => true,
+            'success' => true,
             'message' => 'Denuncia creada exitosamente',
             'data' => new DenunciaResource($denuncia),
             'acuse_recibo' => $this->generarAcuseRecibo($denuncia),
@@ -76,7 +76,7 @@ class DenunciaController extends Controller
         ]);
     }
     // POST /api/denuncias/{folio}/archivos - subir archivo
-    public function subirArhivo(Request $request, $folio)
+    public function subirArchivo(Request $request, $folio)
     {
         $denuncia = $this->denunciaService->obtenerDenuncia($folio);
 
@@ -93,7 +93,7 @@ class DenunciaController extends Controller
 
             return response()->json([
                 'success' => true,
-                'messsage' => 'Archivo cargado exitosamente',
+                'message' => 'Archivo cargado exitosamente',
                 'data' => $archivo
             ], 201);
         } catch (\Exception $e) {
@@ -138,7 +138,7 @@ class DenunciaController extends Controller
             ->orderBy('fecha_accion', 'desc')
             ->get();
 
-            return response()-json([
+            return response()->json([
                 'success' => true,
                 'data' => $bitacora
             ]);
@@ -158,15 +158,15 @@ class DenunciaController extends Controller
 
         //filtros
         if ($request->has('folio')) {
-            $query-where('folio', 'like', '%' . $request->input ('folio') . '%');
+            $query->where('folio', 'like', '%' . $request->input ('folio') . '%');
         }
 
         if ($request->has('estado')) {
-            $query-where('estado', $request->input('estado'));
+            $query->where('estado', $request->input('estado'));
         }
 
         if ($request->has('prioridad')) {
-            $query-where('prioridad', $request->input('prioridad'));
+            $query->where('prioridad', $request->input('prioridad'));
         }
 
         if ($request-> has('fecha_desde')) {
@@ -174,7 +174,7 @@ class DenunciaController extends Controller
         }
 
         if ($request-> has('fecha_hasta')) {
-            $query->whereDate('fecha_recibida', '<=', $request->input ('fecha_desde'));
+            $query->whereDate('fecha_recibida', '<=', $request->input ('fecha_hasta'));
         }
 
         if ($request->has('titulo')) {

@@ -12,7 +12,7 @@ class EstadisticasService
     {
         return [
             'totales' => $this->obtenerTotales(),
-            'por_estado' => $this->obtenerPorEsstado(),
+            'por_estado' => $this->obtenerPorEstado(),
             'por_prioridad' => $this->obtenerPorPrioridad(),
             'ultimas_7_dias' => $this->obtenerUltimas7Dias(),
             'promedio_tiempo_resolucion' => $this->obtenerPromedioResolucion(),

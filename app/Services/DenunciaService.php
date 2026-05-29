@@ -41,7 +41,7 @@ class DenunciaService
             DenunciaBitacora::create([
                 'denuncia_id' => $denuncia->id,
                 'accion' => 'Denuncia creada',
-                'decripcion' => 'Denuncia inicial recibida',
+                'descripcion' => 'Denuncia inicial recibida',
                 'estado_anterior' => null,
                 'estado_nuevo' => 'recibida',
                 'usuario_id' => $usuario_id,

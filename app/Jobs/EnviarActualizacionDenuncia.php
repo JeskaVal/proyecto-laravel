@@ -25,7 +25,7 @@ class EnviarActualizacionDenuncia implements ShouldQueue
     {
         if ($this->denuncia->correo_denunciante && $this->denuncia->tipo_denunciante === 'identificado') {
             Mail::to
-            ($this->denuncia->correo_denunciante)->send(new DenunciaRecibidaMail (
+            ($this->denuncia->correo_denunciante)->send(new ActualizacionDenunciaMail (
                 $this->denuncia,
                 $this->accion,
                 $this->descripcion
