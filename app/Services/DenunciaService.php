@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Denuncia;
 use App\Models\DenunciaBitacora;
+use App\Jobs\EnviarNotificacionDenuncia;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -46,6 +47,8 @@ class DenunciaService
                 'usuario_id' => $usuario_id,
                 'fecha_accion' => Carbon::now(),
             ]);
+
+            EnviarNotificacionDenuncia::dispatch($denuncia);
             
             return $denuncia;
 
@@ -76,6 +79,9 @@ class DenunciaService
                 'usuario_id' => $usuario_id,
                 'fecha_accion' => Carbon::now(),
             ]);
+
+            // Enviar notificacion de actualización
+            EnviarActualizacionDenuncia::dispatch ($denuncia, "Estado: {$estado_anterior} → {$estado_nuevo}", $descripcion);
         });
 
         return $denuncia->refresh();
