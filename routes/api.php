@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DenunciaController;
+use App\Http\Controllers\EstadisticasController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
