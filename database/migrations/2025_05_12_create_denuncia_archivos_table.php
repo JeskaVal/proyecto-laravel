@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('denuncia_archivos', function (Blueprint $table)
         {
             $table->id();
-            $table->foreingId('denuncia_id')->constrained('denuncias')->onDelete('cascade');
+            $table->foreignId('denuncia_id')->constrained('denuncias')->onDelete('cascade');
             $table->string('nombre_archivo');
             $table->string('nombre_original');
             $table->enum('tipo_archivo', ['imagen', 'pdf', 'documento', 'otro']);
