@@ -34,6 +34,6 @@ class DenunciaBitacora extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(User::class)->withTrashed();
+        return $this->belongsTo(User::class);
     }
 }

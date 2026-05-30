@@ -83,7 +83,7 @@ class DenunciaArchivoService
         });
     }
 
-    public function obtenerArchivo(Denuncia $denuncia)
+    public function obtenerArchivos(Denuncia $denuncia)
     {
         return $denuncia->archivos()
             ->orderBy('fecha_carga', 'desc')
