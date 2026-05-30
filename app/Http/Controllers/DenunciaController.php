@@ -232,10 +232,10 @@ class DenunciaController extends Controller
             'titulo_denuncia' => $denuncia->titulo_denuncia,
             'estado' => $denuncia->estado,
             'proximos_pasos' => [
-                '1. Tu denuncia ha sido registrada en el sistema',
-                '2. Recibirás actualizaciones en el correo proporcionado',
-                '3. Guarda tu folio para consultas posteriores',
-                '4. El proceso de revisión puede tomar entre 5-10 días hábiles',
+                'Tu denuncia ha sido registrada en el sistema',
+                'Recibirás actualizaciones en el correo proporcionado',
+                'Guarda tu folio para consultas posteriores',
+                'El proceso de revisión puede tomar entre 5-10 días hábiles',
             ]
 
         ];
