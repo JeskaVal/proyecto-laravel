@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Denuncia;
 use App\Models\DenunciaBitacora;
+use App\Jobs\EnviarActualizacionDenuncia;
 use App\Jobs\EnviarNotificacionDenuncia;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;

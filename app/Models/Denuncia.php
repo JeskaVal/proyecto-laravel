@@ -20,6 +20,7 @@ class Denuncia extends Model
         'tipo_identificacion',
         'numero_identificacion',
         'titulo_denuncia',
+        'descripcion_denuncia',
         'fecha_hechos',
         'lugar_hechos',
         'dependencia_implicada',
@@ -33,12 +34,13 @@ class Denuncia extends Model
 
     ];
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
-        'fecha_hechos',
-        'fecha_recibida',
+    protected $casts = [
+        'fecha_hechos' => 'datetime',
+        'fecha_recibida' => 'datetime',
+        'fecha_ultimaActualizacion' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     protected $hidden = [

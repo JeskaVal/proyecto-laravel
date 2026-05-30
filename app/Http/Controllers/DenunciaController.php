@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDenunciaRequest;
 use App\Http\Resources\DenunciaResource;
 use App\Models\Denuncia;
+use App\Models\DenunciaArchivo;
+use App\Services\DenunciaArchivoService;
 use App\Services\DenunciaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -134,7 +136,7 @@ class DenunciaController extends Controller
     {
         $denuncia = $this->denunciaService->obtenerDenuncia($folio);
         $bitacora = $denuncia->bitacora()
-            ->with('usuario:id, name, email')
+            ->with('usuario:id,name,email')
             ->orderBy('fecha_accion', 'desc')
             ->get();
 
@@ -227,7 +229,7 @@ class DenunciaController extends Controller
         return [
             'folio' => $denuncia->folio,
             'fecha_recibida' => $denuncia->fecha_recibida->format('Y-m-d H:i:s'),
-            'titulo_denuncia' => $denuncia->estado,
+            'titulo_denuncia' => $denuncia->titulo_denuncia,
             'estado' => $denuncia->estado,
             'proximos_pasos' => [
                 '1. Tu denuncia ha sido registrada en el sistema',
