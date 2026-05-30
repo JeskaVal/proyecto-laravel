@@ -15,11 +15,11 @@ class StoreDenunciaRequest extends FormRequest
     {
         return [
             'tipo_denunciante' => 'required|in:anonimo,identificado',
-            'nombre_denunciante' => 'required_if:tipo_denunciante,identificado|string|max:255',
-            'correo_denunciante' => 'required_if:tipo_denunciante,identificado|email',
+            'nombre_denunciante' => 'nullable|required_if:tipo_denunciante,identificado|string|max:255',
+            'correo_denunciante' => 'nullable|required_if:tipo_denunciante,identificado|email',
             'telefono_denunciante' => 'nullable|string|max:20',
-            'tipo_identificacion' => 'required_if:tipo_denunciante,identificado|string',
-            'numero_identificacion' => 'required_if:tipo_denunciante,identificado|string|max:50',
+            'tipo_identificacion' => 'nullable|required_if:tipo_denunciante,identificado|string',
+            'numero_identificacion' => 'nullable|required_if:tipo_denunciante,identificado|string|max:50',
             'titulo_denuncia' => 'required|string|min:10|max:255',
             'descripcion_denuncia' => 'required|string|min:50|max:10000',
             'fecha_hechos' => 'nullable|date',
