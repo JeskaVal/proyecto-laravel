@@ -5,6 +5,17 @@ use App\Http\Controllers\EstadisticasController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Endpoint de prueba de conexión (público)
+Route::get('/ping', function () {
+    return response()->json([
+        'status'           => 'ok',
+        'mensaje'          => 'Conexión exitosa',
+        'hora_servidor'    => now()->toISOString(),
+        'version_php'      => PHP_VERSION,
+        'version_laravel'  => app()->version(),
+    ]);
+});
+
 Route::middleware('api')->group(function () {
     // DENUNCIAS - Rutas públicas
     Route::post('/denuncias', [DenunciaController::class, 'store']);
