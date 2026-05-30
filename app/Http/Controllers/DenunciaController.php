@@ -6,6 +6,7 @@ use App\Http\Requests\StoreDenunciaRequest;
 use App\Http\Resources\DenunciaResource;
 use App\Models\Denuncia;
 use App\Models\DenunciaArchivo;
+use App\Services\ContrasenaAccesoService;
 use App\Services\DenunciaArchivoService;
 use App\Services\DenunciaService;
 use Illuminate\Http\Request;
@@ -15,42 +16,85 @@ class DenunciaController extends Controller
 {
     private DenunciaService $denunciaService;
     private DenunciaArchivoService $archivoService;
+    private ContrasenaAccesoService $contrasenaService;
 
     public function __construct(
         DenunciaService $denunciaService,
-        DenunciaArchivoService $archivoService
-        ) {
+        DenunciaArchivoService $archivoService,
+        ContrasenaAccesoService $contrasenaService
+    ) {
         $this->denunciaService = $denunciaService;
         $this->archivoService = $archivoService;
+        $this->contrasenaService = $contrasenaService;
     }
 
     // POST /api/denuncias - Crear nueva denuncia
-    public function store(StoreDenunciaRequest $request, DenunciaService $denunciaService)
+    public function store(StoreDenunciaRequest $request)
     {
         $usuario_id = Auth::check() ? Auth::id() : null;
         $ip = $request->ip();
         $navegador = $request->header('User-Agent');
 
-        $denuncia = $denunciaService->crearDenuncia(
+        $resultado = $this->denunciaService->crearDenuncia(
             $request->validated(),
             $usuario_id,
             $ip,
             $navegador
         );
 
+        $denuncia = $resultado['denuncia'];
+        $contrasena = $resultado['contrasena'];
+
         return response()->json([
             'success' => true,
             'message' => 'Denuncia creada exitosamente',
             'data' => new DenunciaResource($denuncia),
-            'acuse_recibo' => $this->generarAcuseRecibo($denuncia),
+            'acuse_recibo' => $this->generarAcuseRecibo($denuncia, $contrasena),
         ], 201);
+    }
+
+    // POST /api/denuncias/consultar - Consultar denuncia con contraseña de acceso
+    public function consultarConContrasena(Request $request)
+    {
+        $request->validate([
+            'folio' => 'required|string',
+            'contrasena_acceso' => 'required|string',
+        ]);
+
+        $denuncia = Denuncia::where('folio', $request->input('folio'))->first();
+
+        if (!$denuncia) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró una denuncia con ese folio',
+            ], 404);
+        }
+
+        if (!$denuncia->contrasena_acceso) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta denuncia no tiene contraseña de acceso configurada',
+            ], 422);
+        }
+
+        if (!$this->contrasenaService->verificar($request->input('contrasena_acceso'), $denuncia->contrasena_acceso)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Contraseña de acceso incorrecta',
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => new DenunciaResource($denuncia),
+        ]);
     }
 
     // GET /api/denuncias/{folio} - Obtener detalles de una denuncia
     public function show($folio)
     {
         $denuncia = $this->denunciaService->obtenerDenuncia($folio);
-        
+
         return response()->json([
             'success' => true,
             'data' => new DenunciaResource($denuncia),
@@ -62,7 +106,7 @@ class DenunciaController extends Controller
     {
         $this->authorize('viewAny', Denuncia::class);
 
-        $denuncias = Denuncia::when(Auth::check() && !Auth::user()->is_admin, function ($query){
+        $denuncias = Denuncia::when(Auth::check() && !Auth::user()->is_admin, function ($query) {
             $query->where('usuario_id', Auth::id());
         })->paginate(15);
 
@@ -77,7 +121,8 @@ class DenunciaController extends Controller
             ]
         ]);
     }
-    // POST /api/denuncias/{folio}/archivos - subir archivo
+
+    // POST /api/denuncias/{folio}/archivos - Subir archivo
     public function subirArchivo(Request $request, $folio)
     {
         $denuncia = $this->denunciaService->obtenerDenuncia($folio);
@@ -122,7 +167,7 @@ class DenunciaController extends Controller
     public function descargarArchivo(DenunciaArchivo $archivo)
     {
         try {
-            return $this->archuivoService->descargarArchivo($archivo);
+            return $this->archivoService->descargarArchivo($archivo);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -140,10 +185,10 @@ class DenunciaController extends Controller
             ->orderBy('fecha_accion', 'desc')
             ->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $bitacora
-            ]);
+        return response()->json([
+            'success' => true,
+            'data' => $bitacora
+        ]);
     }
 
     // GET /api/denuncias/buscar - Buscar denuncias
@@ -153,14 +198,12 @@ class DenunciaController extends Controller
 
         $query = Denuncia::query();
 
-        //si no es admin, solo mostrar propias
         if (Auth::check() && !Auth::user()->is_admin) {
             $query->where('usuario_id', Auth::id());
         }
 
-        //filtros
         if ($request->has('folio')) {
-            $query->where('folio', 'like', '%' . $request->input ('folio') . '%');
+            $query->where('folio', 'like', '%' . $request->input('folio') . '%');
         }
 
         if ($request->has('estado')) {
@@ -171,12 +214,12 @@ class DenunciaController extends Controller
             $query->where('prioridad', $request->input('prioridad'));
         }
 
-        if ($request-> has('fecha_desde')) {
-            $query->whereDate('fecha_recibida', '>=', $request->input ('fecha_desde'));
+        if ($request->has('fecha_desde')) {
+            $query->whereDate('fecha_recibida', '>=', $request->input('fecha_desde'));
         }
 
-        if ($request-> has('fecha_hasta')) {
-            $query->whereDate('fecha_recibida', '<=', $request->input ('fecha_hasta'));
+        if ($request->has('fecha_hasta')) {
+            $query->whereDate('fecha_recibida', '<=', $request->input('fecha_hasta'));
         }
 
         if ($request->has('titulo')) {
@@ -205,7 +248,8 @@ class DenunciaController extends Controller
         $denuncia = $this->denunciaService->obtenerDenuncia($folio);
 
         $request->validate([
-            'estado' => 'required|in:recibida,en_revision,en_proceso,resuelta,archivada', 'descripcion' => 'required|string'
+            'estado' => 'required|in:recibida,en_revision,en_proceso,resuelta,archivada',
+            'descripcion' => 'required|string'
         ]);
 
         $denuncia = $this->denunciaService->actualizarEstado(
@@ -222,26 +266,20 @@ class DenunciaController extends Controller
         ]);
     }
 
-    // Generar acuse de recibo
-
-    private function generarAcuseRecibo(Denuncia $denuncia)
+    private function generarAcuseRecibo(Denuncia $denuncia, string $contrasena): array
     {
         return [
             'folio' => $denuncia->folio,
             'fecha_recibida' => $denuncia->fecha_recibida->format('Y-m-d H:i:s'),
             'titulo_denuncia' => $denuncia->titulo_denuncia,
             'estado' => $denuncia->estado,
+            'contrasena_acceso' => $contrasena,
             'proximos_pasos' => [
                 'Tu denuncia ha sido registrada en el sistema',
                 'Recibirás actualizaciones en el correo proporcionado',
-                'Guarda tu folio para consultas posteriores',
+                'Guarda tu folio y contraseña de acceso para consultas posteriores',
                 'El proceso de revisión puede tomar entre 5-10 días hábiles',
-            ]
-
+            ],
         ];
     }
-
-    
-
-
 }

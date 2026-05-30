@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('api')->group(function () {
     // DENUNCIAS - Rutas públicas
     Route::post('/denuncias', [DenunciaController::class, 'store']);
+    Route::post('/denuncias/consultar', [DenunciaController::class, 'consultarConContrasena']);
     Route::get('/denuncias/{folio}', [DenunciaController::class, 'show']);
     Route::get('/denuncias/{folio}/archivos', [DenunciaController::class, 'obtenerArchivos']);
     Route::get('/denuncias/{folio}/bitacora', [DenunciaController::class, 'obtenerBitacora']);
@@ -18,7 +19,7 @@ Route::middleware('api')->group(function () {
         Route::post('/denuncias/{folio}/archivos', [DenunciaController::class, 'subirArchivo']);
         Route::get('/denuncias/buscar', [DenunciaController::class, 'buscar']);
         Route::get('/denuncias/archivos/{archivo}/descargar', [DenunciaController::class, 'descargarArchivo']);
-        
+
         // Solo para admins
         Route::middleware('can:update,App\Models\Denuncia')->group(function () {
             Route::put('/denuncias/{folio}/estado', [DenunciaController::class, 'cambiarEstado']);

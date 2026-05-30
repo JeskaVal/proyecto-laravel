@@ -11,12 +11,14 @@ use Carbon\Carbon;
 
 class DenunciaService
 {
-    public function crearDenuncia(array $datos, $usuario_id = null, $ip = null, $navegador = null)
+    public function __construct(private ContrasenaAccesoService $contrasenaService) {}
+
+    public function crearDenuncia(array $datos, $usuario_id = null, $ip = null, $navegador = null): array
     {
         return DB::transaction(function () use ($datos, $usuario_id, $ip, $navegador) {
-            // Generar folio único
             $folio = Denuncia::generarFolio();
-            // Crear denuncia
+            $contrasena = $this->contrasenaService->generarContrasena();
+
             $denuncia = Denuncia::create([
                 'folio' => $folio,
                 'tipo_denunciante' => $datos['tipo_denunciante'],
@@ -36,9 +38,9 @@ class DenunciaService
                 'usuario_id' => $usuario_id,
                 'ip_origen' => $ip,
                 'navegador' => $navegador,
+                'contrasena_acceso' => $this->contrasenaService->hashear($contrasena),
             ]);
 
-            // Registrar en bitácora
             DenunciaBitacora::create([
                 'denuncia_id' => $denuncia->id,
                 'accion' => 'Denuncia creada',
@@ -49,19 +51,18 @@ class DenunciaService
                 'fecha_accion' => Carbon::now(),
             ]);
 
-            EnviarNotificacionDenuncia::dispatch($denuncia);
-            
-            return $denuncia;
+            EnviarNotificacionDenuncia::dispatch($denuncia, $contrasena);
 
+            return ['denuncia' => $denuncia, 'contrasena' => $contrasena];
         });
     }
 
-    public function obtenerDenuncia($folio)
+    public function obtenerDenuncia($folio): Denuncia
     {
         return Denuncia::where('folio', $folio)->firstOrFail();
     }
 
-    public function actualizarEstado(Denuncia $denuncia, $estado_nuevo, $descripcion, $usuario_id = null)
+    public function actualizarEstado(Denuncia $denuncia, $estado_nuevo, $descripcion, $usuario_id = null): Denuncia
     {
         $estado_anterior = $denuncia->estado;
 
@@ -81,8 +82,7 @@ class DenunciaService
                 'fecha_accion' => Carbon::now(),
             ]);
 
-            // Enviar notificacion de actualización
-            EnviarActualizacionDenuncia::dispatch ($denuncia, "Estado: {$estado_anterior} → {$estado_nuevo}", $descripcion);
+            EnviarActualizacionDenuncia::dispatch($denuncia, "Estado: {$estado_anterior} → {$estado_nuevo}", $descripcion);
         });
 
         return $denuncia->refresh();

@@ -30,8 +30,8 @@ class Denuncia extends Model
         'fecha_ultimaActualizacion',
         'usuario_id',
         'ip_origen',
-        'navegador'
-
+        'navegador',
+        'contrasena_acceso',
     ];
 
     protected $casts = [
@@ -46,7 +46,8 @@ class Denuncia extends Model
     protected $hidden = [
         'ip_origen',
         'navegador',
-        'deleted_at'
+        'contrasena_acceso',
+        'deleted_at',
     ];
 
     public function usuario()

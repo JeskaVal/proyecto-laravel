@@ -15,13 +15,16 @@ class EnviarNotificacionDenuncia implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public Denuncia $denuncia) {}
+    public function __construct(
+        public Denuncia $denuncia,
+        public string $contrasenaPlana
+    ) {}
 
     public function handle(): void
     {
         if ($this->denuncia->correo_denunciante && $this->denuncia->tipo_denunciante === 'identificado') {
-            Mail::to
-            ($this->denuncia->correo_denunciante)->send(new DenunciaRecibidaMail ($this->denuncia));
+            Mail::to($this->denuncia->correo_denunciante)
+                ->send(new DenunciaRecibidaMail($this->denuncia, $this->contrasenaPlana));
         }
     }
 }
