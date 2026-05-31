@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/ping', function () {
     return response()->json([
         'status'           => 'ok',
-        'mensaje'          => 'Conexión exitosa. HOLA BUEN DIA!!!',
+        'mensaje'          => 'Conexión exitosa',
         'hora_servidor'    => now()->toISOString(),
         'version_php'      => PHP_VERSION,
         'version_laravel'  => app()->version(),
