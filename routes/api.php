@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DenunciaController;
 use App\Http\Controllers\EstadisticasController;
 use Illuminate\Http\Request;
@@ -16,7 +17,12 @@ Route::get('/ping', function () {
     ]);
 });
 
+// Autenticación (público)
+Route::post('/login', [AuthController::class, 'login']);
+
 Route::middleware('api')->group(function () {
+    // Logout (requiere token)
+    Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
     // DENUNCIAS - Rutas públicas
     Route::post('/denuncias', [DenunciaController::class, 'store']);
     Route::post('/denuncias/consultar', [DenunciaController::class, 'consultarConContrasena']);
